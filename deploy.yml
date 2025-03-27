@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pgne-app
-  namespace: pgne-app
+  name: test-app
+  namespace: test-app
   labels:
-    app: pgne
+    app: test
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
   replicas: 5
   selector:
     matchLabels:
-      app: pgne
+      app: test
   template:
     metadata:
       labels:
-        app: pgne
+        app: test
     spec:
       topologySpreadConstraints:
         - maxSkew: 1
@@ -23,10 +23,10 @@ spec:
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
-              app: pgne
+              app: test
       containers:
-        - name: pgne-container
-          image: satya1541/pgne:latest
+        - name: test-container
+          image: satya1541/test:latest
           ports:
             - containerPort: 80
           resources:
@@ -57,14 +57,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: pgne-app
-  namespace: pgne-app
+  name: test-app
+  namespace: test-app
   annotations:
     argocd.argoproj.io/sync-wave: "2"
 spec:
   type: LoadBalancer
   selector:
-    app: pgne
+    app: test
   ports:
     - port: 80
       targetPort: 80
@@ -72,14 +72,14 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: pgne-app-hpa
-  namespace: pgne-app
+  name: test-app-hpa
+  namespace: test-app
   annotations:
     argocd.argoproj.io/sync-wave: "3"
 spec:
   scaleTargetRef:
     kind: Deployment
-    name: pgne-app
+    name: test-app
     apiVersion: apps/v1
   minReplicas: 3
   maxReplicas: 10
@@ -100,12 +100,12 @@ spec:
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: pgne-app-pdb
-  namespace: pgne-app
+  name: test-app-pdb
+  namespace: test-app
   annotations:
     argocd.argoproj.io/sync-wave: "4"
 spec:
   minAvailable: 2
   selector:
     matchLabels:
-      app: pgne
+      app: test
